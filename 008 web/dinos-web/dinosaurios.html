@@ -386,6 +386,111 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Sección "Descripción del modelo" ─────────────────────────────── */
+    .model-info { margin-bottom: 3rem; }
+    .model-info > h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: .35rem;
+      letter-spacing: .3px;
+    }
+    .model-info > .section-subtitle {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+    .spec-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+    }
+    .spec-card h3 {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: .9rem;
+    }
+    .spec-card p {
+      font-size: .85rem;
+      line-height: 1.55;
+      color: #cfe3d0;
+    }
+    .spec-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .spec-card ul li {
+      padding: .3rem 0;
+      border-bottom: 1px dashed var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: .85rem;
+    }
+    .spec-card ul li:last-child { border-bottom: none; }
+    .spec-card .label { color: var(--muted); }
+    .spec-card .value {
+      color: var(--accent);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-size: .82rem;
+    }
+    .spec-card code {
+      background: var(--bg);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-size: .82rem;
+      color: var(--accent2);
+    }
+    .spec-card .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      margin-top: .25rem;
+    }
+    .spec-card .pipeline span.layer {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .4rem .65rem;
+      font-size: .8rem;
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      color: var(--accent2);
+      text-align: center;
+    }
+    .spec-card .pipeline span.arrow {
+      color: var(--muted);
+      text-align: center;
+      font-size: .75rem;
+    }
+    .spec-card .mlflow-note {
+      margin-top: .9rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    /* ── Encabezado de galería ─────────────────────────────────────────── */
+    .gallery-heading { margin-bottom: 1.25rem; }
+    .gallery-heading h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: .35rem;
+      letter-spacing: .3px;
+    }
+    .gallery-heading p {
+      font-size: .9rem;
+      color: var(--muted);
+      max-width: 60ch;
+    }
+
     /* ── Responsive ──────────────────────────────────────────────────────── */
     @media (max-width: 600px) {
       header { flex-direction: column; gap: 1rem; align-items: flex-start; }
@@ -411,6 +516,86 @@
 
 <!-- ── Cards ───────────────────────────────────────────────────────────────── -->
 <main>
+
+  <!-- ── Descripción del modelo ─────────────────────────────────────────── -->
+  <section class="model-info">
+    <h2>Descripción del modelo</h2>
+    <p class="section-subtitle">
+      RNN decoder-only entrenado a nivel de subpalabra (BPE) sobre 1535 nombres de dinosaurios reales.
+      Predice el siguiente token de forma autorregresiva.
+    </p>
+
+    <div class="model-grid">
+
+      <article class="spec-card">
+        <h3>Arquitectura</h3>
+        <div class="pipeline">
+          <span class="layer">Embedding · dim=32 · mask_zero=True</span>
+          <span class="arrow">↓</span>
+          <span class="layer">LSTM · 128 unidades · return_sequences</span>
+          <span class="arrow">↓</span>
+          <span class="layer">Dense · softmax sobre vocab</span>
+        </div>
+        <p style="margin-top:.9rem">
+          Decoder-only autoregresivo. Entrenamiento por <em>teacher forcing</em>
+          con pérdida <code>sparse_categorical_crossentropy</code>.
+        </p>
+      </article>
+
+      <article class="spec-card">
+        <h3>Tokenización · BPE</h3>
+        <ul>
+          <li><span class="label">Corpus</span><span class="value">1535 nombres</span></li>
+          <li><span class="label">Merges</span><span class="value">300</span></li>
+          <li><span class="label">Vocabulario</span><span class="value">277 tokens</span></li>
+          <li><span class="label">Tokens especiales</span><span class="value">4</span></li>
+        </ul>
+        <p class="mlflow-note">
+          Tokens especiales: <code>&lt;PAD&gt;</code>, <code>&lt;SOW&gt;</code>,
+          <code>&lt;EOW&gt;</code>, <code>&lt;UNK&gt;</code>.
+        </p>
+      </article>
+
+      <article class="spec-card">
+        <h3>Hiperparámetros</h3>
+        <ul>
+          <li><span class="label">Embedding dim</span><span class="value">32</span></li>
+          <li><span class="label">LSTM hidden</span><span class="value">128</span></li>
+          <li><span class="label">Epochs</span><span class="value">100</span></li>
+          <li><span class="label">Batch size</span><span class="value">64</span></li>
+          <li><span class="label">Optimizer</span><span class="value">Adam · lr=1e-3</span></li>
+          <li><span class="label">Train / test</span><span class="value">80 / 20</span></li>
+          <li><span class="label">Seed</span><span class="value">42</span></li>
+        </ul>
+      </article>
+
+      <article class="spec-card">
+        <h3>Muestreo y experimentos</h3>
+        <p>Tres mecanismos implementados y comparados:</p>
+        <ul style="margin-top:.7rem">
+          <li><span class="label">Temperatura</span><span class="value">0.1 – 2.0</span></li>
+          <li><span class="label">Top-k</span><span class="value">k = 5, 10</span></li>
+          <li><span class="label">Top-p (nucleus)</span><span class="value">p = 0.80 – 0.95</span></li>
+        </ul>
+        <p class="mlflow-note">
+          Curvas de aprendizaje, métricas por época y comparativa entre configuraciones
+          disponibles en MLflow, experimento <code>RNN-nombres-dinosaurios</code>.
+        </p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── Encabezado de la galería ───────────────────────────────────────── -->
+  <section class="gallery-heading">
+    <h2>Top 10 nombres generados</h2>
+    <p>
+      Selección curada de la mejor configuración (temperatura 1.0, top-k=10, top-p=0.9).
+      Cada card combina el nombre generado por la RNN, la descripción paleontológica
+      producida por Phi4 vía Ollama, y la imagen generada por SDXL.
+    </p>
+  </section>
+
   <div class="grid" id="grid"></div>
 </main>
 
@@ -577,7 +762,18 @@
   const btnIcon     = document.getElementById('btnIcon');
   const btnText     = document.getElementById('btnText');
 
-  const API_BASE         = 'http://3.234.79.156:8000';
+  // API_BASE puede sobreescribirse de tres formas, en orden de prioridad:
+  //   1. Query param:   dinosaurios.html?api=https://xxxx.ngrok-free.app
+  //   2. localStorage:  localStorage.setItem('apiBase', 'https://...')
+  //   3. Default:       IP pública de la EC2 (fallback)
+  // Cuando se pasa ?api=..., se persiste en localStorage para futuros refresh.
+  const _qs = new URLSearchParams(window.location.search);
+  if (_qs.has('api')) localStorage.setItem('apiBase', _qs.get('api'));
+
+  const API_BASE = _qs.get('api')
+                || localStorage.getItem('apiBase')
+                || 'http://3.234.79.156:8000';
+
   const API_GENERATE     = `${API_BASE}/generate`;
   const API_PREDICT      = `${API_BASE}/predict`;
   const API_GEN_IMAGE    = `${API_BASE}/generate-image`;
