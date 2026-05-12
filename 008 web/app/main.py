@@ -10,7 +10,7 @@ import mlflow.artifacts
 import numpy as np
 import tensorflow as tf
 import torch
-from diffusers import StableDiffusionXLPipeline
+from diffusers import StableDiffusionPipeline
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -91,16 +91,15 @@ async def lifespan(app: FastAPI):
     state["run_id"] = run_id
     print(f"RNN model ready  (run: {run_id})")
 
-    # 3. SDXL image pipeline
-    print("Loading SDXL pipeline ...")
-    sdxl_pipe = StableDiffusionXLPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-xl-base-1.0",
+    # 3. SD 1.5 image pipeline
+    print("Loading Stable Diffusion 1.5 pipeline ...")
+    sd_pipe = StableDiffusionPipeline.from_pretrained(
+        "runwayml/stable-diffusion-v1-5",
         torch_dtype=torch.float16,
         use_safetensors=True,
-        variant="fp16",
     )
-    state["flux_pipe"] = sdxl_pipe
-    print("SDXL pipeline ready")
+    state["flux_pipe"] = sd_pipe
+    print("Stable Diffusion 1.5 pipeline ready")
 
     yield
 
@@ -255,8 +254,8 @@ def predict(req: PredictRequest):
 
 class GenerateImageRequest(BaseModel):
     prompt: str
-    height: int = 1024
-    width: int = 1024
+    height: int = 512
+    width: int = 512
     guidance_scale: float = 7.5
     num_inference_steps: int = 20
     seed: int = 0
