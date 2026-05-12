@@ -5,7 +5,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IMAGE_NAME="${1:-dino-api}"
 MLFLOW_PORT=5000
 API_PORT=8000
-MLFLOW_DIR="$HOME/mlflow-data"
+MLFLOW_DIR="/home/ec2-user/mlflow-data"
 
 # ── 1. MLflow server ──────────────────────────────────────────────────────────
 echo "Starting MLflow server..."
