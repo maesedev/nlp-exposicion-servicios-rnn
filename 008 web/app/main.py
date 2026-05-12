@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 from contextlib import asynccontextmanager
+from urllib.parse import urljoin
 
 import requests
 
@@ -262,8 +263,14 @@ def generate_image(req: GenerateImageRequest):
             timeout=300,
         )
         res.raise_for_status()
+        image_url = res.json().get("image_url")
+        if not image_url:
+            raise HTTPException(status_code=502, detail=f"Image service did not return image_url: {res.text!r}")
+
+        img_res = requests.get(urljoin(IMAGE_SERVICE_URL, image_url), timeout=60)
+        img_res.raise_for_status()
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=502, detail=f"Error reaching image service: {e}")
 
-    content_type = res.headers.get("Content-Type", "image/png")
-    return Response(content=res.content, media_type=content_type)
+    content_type = img_res.headers.get("Content-Type", "image/png")
+    return Response(content=img_res.content, media_type=content_type)
