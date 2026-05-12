@@ -247,13 +247,13 @@ IMAGE_SERVICE_URL = os.getenv(
 
 class GenerateImageRequest(BaseModel):
     name: str
-    description: str
+    description: str = ""
 
 
 @app.post("/generate-image", response_class=Response)
 def generate_image(req: GenerateImageRequest):
-    if not req.name.strip() or not req.description.strip():
-        raise HTTPException(status_code=422, detail="name and description must not be empty")
+    if not req.name.strip():
+        raise HTTPException(status_code=422, detail="name must not be empty")
 
     try:
         res = requests.post(

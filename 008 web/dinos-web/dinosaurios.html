@@ -849,6 +849,7 @@
       resultRun.textContent  = `run: ${data.run_id}`;
       resultPanel.classList.add('visible');
       btnDescribir.classList.add('visible');
+      btnImagen.classList.add('visible');
 
     } catch (err) {
       errorMsg.textContent = `No se pudo generar el nombre: ${err.message}`;
@@ -888,7 +889,6 @@
       const data = await res.json();
       descPanelText.textContent = data.description;
       descPanel.classList.add('visible');
-      btnImagen.classList.add('visible');
 
     } catch (err) {
       errorMsg.textContent = `No se pudo obtener la descripción: ${err.message}`;
@@ -904,7 +904,7 @@
   btnImagen.addEventListener('click', async () => {
     const name = resultName.textContent.trim();
     const description = descPanelText.textContent.trim();
-    if (!name || !description) return;
+    if (!name) return;
 
     imgPanel.classList.remove('visible');
     imgResult.src = '';
