@@ -1,0 +1,6 @@
+fastapi==0.104.1
+uvicorn[standard]
+tensorflow
+mlflow
+numpy
+pydantic
