@@ -240,7 +240,7 @@ def predict(req: PredictRequest):
         res = requests.post(
             f"{ngrok_url}/api/generate",
             json={"model": "phi4", "prompt": PREDICT_PROMPT.format(name=req.name), "stream": False},
-            timeout=60,
+            timeout=300,
         )
         res.raise_for_status()
     except requests.exceptions.RequestException as e:
