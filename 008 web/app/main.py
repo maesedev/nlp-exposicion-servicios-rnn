@@ -4,6 +4,8 @@ import sys
 import tempfile
 from contextlib import asynccontextmanager
 
+import requests
+
 import mlflow.artifacts
 import numpy as np
 import tensorflow as tf
@@ -200,6 +202,55 @@ def generate(req: GenerateRequest):
 
     name = _generate(req.prefix, req.temperature)
     return GenerateResponse(name=name, prefix=req.prefix, run_id=state["run_id"])
+
+
+NGROK_CONFIG_PATH = "/home/ecs-user/ngrok_link.config"
+PREDICT_PROMPT = (
+    "Create a brief description of the following made up dinosaur name, "
+    "keeping the paleontologist point of view. Answer only with the description, "
+    "no extra commentary.\n\nDinosaur: {name}"
+)
+
+
+def _read_ngrok_url() -> str:
+    try:
+        with open(NGROK_CONFIG_PATH) as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail=f"Config file not found: {NGROK_CONFIG_PATH}")
+
+
+class PredictRequest(BaseModel):
+    name: str
+
+
+class PredictResponse(BaseModel):
+    name: str
+    description: str
+
+
+@app.post("/predict", response_model=PredictResponse)
+def predict(req: PredictRequest):
+    if not req.name.strip():
+        raise HTTPException(status_code=422, detail="name must not be empty")
+
+    ngrok_url = _read_ngrok_url()
+
+    try:
+        res = requests.post(
+            f"{ngrok_url}/api/generate",
+            json={"model": "phi4", "prompt": PREDICT_PROMPT.format(name=req.name), "stream": False},
+            timeout=60,
+        )
+        res.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Error reaching ngrok/Ollama: {e}")
+
+    description = res.json().get("response", "").strip()
+    if not description:
+        raise HTTPException(status_code=502, detail="Empty response from model")
+
+    return PredictResponse(name=req.name, description=description)
 
 
 class GenerateImageRequest(BaseModel):
