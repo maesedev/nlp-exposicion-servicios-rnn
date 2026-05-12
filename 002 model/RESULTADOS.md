@@ -49,5 +49,39 @@ Anomalía con sau: El modelo ignoró completamente el prefijo y generó nombres 
 
 MODEL Phi4 14B (https://ollama.com/library/phi4)
 
-Prompt: 
+Prompt: Create a brief description of all the following made up dinosours names, keeping the paleontologist point of view. Meginosaurus, Rexcanoceratops, Trigyadrorox, Topraptor, Ptenosaurus, Alcotit, Brasaurus, Brasidais, Alw
+... inisaurus, Kalavenator.
 
+
+**Meginosaurus**: From a paleontologist's perspective, the Meginosaurus might be envisioned as a massive theropod dinosaur that roamed during the late Cretaceous period. Its name suggests "great lizard," indicating 
+it could have been one of the dominant predators in its ecosystem. With robust limbs and powerful jaws, this hypothetical species may have preyed upon large herbivorous dinosaurs.
+
+**Rexcanoceratops**: This name evokes a combination of the iconic Tyrannosaurus rex and the ceratopsian family. The Rexcanoceratops could be imagined as an unusual theropod with distinctive facial horns or frills, 
+suggesting an evolutionary convergence where traits typically associated with horned dinosaurs appeared in this predator.
+
+**Trigyadrorox**: Deriving its name from "three gades" (a reference to the tripedal stance) and "Rex," the Trigyadrorox could be a fascinating adaptation of bipedal theropods. This speculative dinosaur might have 
+developed an additional limb or structure that aided in balance or predation, possibly indicating a unique ecological niche.
+
+**Topraptor**: The Topraptor likely signifies an agile and highly skilled predator, potentially akin to dromaeosaurids like Velociraptor. Its name suggests it was among the apex predators of its time, characterized 
+by keen intelligence, speed, and adaptability in hunting strategies.
+
+**Ptenosaurus**: This name suggests a pterosaur with distinctive features, perhaps inspired by "pteno," meaning wing or fin in Greek. The Ptenosaurus might have been an adept flyer with broad wingspans, possibly 
+inhabiting coastal regions and feeding on fish or small terrestrial prey from above.
+
+**Alcotit**: With a name that hints at alchemy or transformation ("alco" potentially referencing the moon), Alcotit could be imagined as a nocturnal dinosaur. This herbivorous species might have had adaptations for 
+low-light environments, such as enhanced night vision or echolocation abilities.
+
+**Brasaurus**: The name suggests a connection to Brazil ("bras"), indicating this sauropod may have thrived in South America's lush prehistoric landscapes. Brasaurus could be envisioned as a long-necked herbivore 
+with a unique skeletal structure that allowed it to efficiently feed on the diverse flora of its environment.
+
+**Brasidais**: Similar to Brasaurus, Brasidais might also hail from ancient Brazil but could represent a different dinosaur group or evolutionary path. As a possible hadrosaurid, this ornithischian herbivore may have 
+been known for its elaborate dental batteries and potential social behaviors.
+
+**Alwinisaurus**: The name suggests a connection to Alwyn, perhaps an explorer or region. This hypothetical species might have been discovered in such a place, characterized by unique morphological traits that set it 
+apart from other dinosaurs, possibly reflecting specialized environmental adaptations.
+
+**Kalavenator**: Evoking the image of a formidable hunter ("kala" meaning beautiful in some languages, combined with "venator," Latin for hunter), Kalavenator could be imagined as an agile and effective predator. 
+This theropod might have possessed distinctive features such as serrated teeth or keen senses that made it a top predator in its ecosystem.
+
+These descriptions are speculative and imaginative interpretations of the given names, reflecting how paleontologists might approach naming and conceptualizing new dinosaur species based on linguistic clues and known 
+evolutionary patterns.
