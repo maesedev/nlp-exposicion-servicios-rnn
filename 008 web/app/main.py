@@ -254,9 +254,12 @@ def predict(req: PredictRequest):
 
 
 class GenerateImageRequest(BaseModel):
+    # Resolución default 512×512 para cumplir con el spec del taller
+    # ("limitar la resolución para disminuir consumo de recursos") y para
+    # acelerar la generación si el host corre en CPU.
     prompt: str
-    height: int = 1024
-    width: int = 1024
+    height: int = 512
+    width: int = 512
     guidance_scale: float = 7.5
     num_inference_steps: int = 20
     seed: int = 0

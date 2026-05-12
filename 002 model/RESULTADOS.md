@@ -47,6 +47,35 @@ Anomalía con sau: El modelo ignoró completamente el prefijo y generó nombres 
 40	top	2.0	Topllasauria
 
 
+## Análisis comparativo de muestreo (top-k, top-p, temperatura)
+
+El modelo se evaluó con cinco configuraciones de muestreo sobre el mismo modelo
+entrenado, logueadas como runs separados en MLflow (experimento
+`RNN-nombres-dinosaurios`):
+
+| Run                 | top-k | top-p | Carácter                          |
+|---------------------|-------|-------|-----------------------------------|
+| top_k5_top_p1.00    | 5     | —     | Conservador, alta coherencia      |
+| top_k10_top_p1.00   | 10    | —     | Balance                           |
+| top_k0_top_p0.80    | —     | 0.80  | Nucleus estricto                  |
+| top_k0_top_p0.95    | —     | 0.95  | Nucleus permisivo                 |
+| top_k10_top_p0.90   | 10    | 0.90  | Combinado · **mejor resultado**   |
+
+**Conclusión.** Con `top_k=5` los nombres son los más cercanos a los reales —
+sufijos como `-saurus`, `-raptor` y `-ceratops` dominan — pero hay poca variedad
+y aparecen duplicados entre semillas. `top_p=0.80` (nucleus estricto) tiene un
+comportamiento similar pero **adaptativo**: filtra menos cuando el modelo está
+confiado y más cuando está incierto. `top_p=0.95` aporta diversidad sin romper la
+estructura morfológica. La mejor configuración fue **`top_k=10` + `top_p=0.90` con
+temperatura 1.0**: combina el filtro top-k para descartar tokens muy improbables
+con el nucleus para adaptar la diversidad localmente; produce nombres como
+*Trigyadrorox*, *Alwinisaurus* o *Kalavenator* que mantienen la morfología
+paleontológica pero exploran raíces no triviales. Sobre temperatura, el rango útil
+es 0.7–1.2 — por debajo de 0.5 los nombres colapsan a los tokens más frecuentes
+del corpus (varios *Saurus*, *Trisaurus*); por encima de 1.5 la morfología se
+rompe (e.g. *Velwiarondemryxtrihnko* con T=2.0).
+
+
 MODEL Phi4 14B (https://ollama.com/library/phi4)
 
 Prompt: Create a brief description of all the following made up dinosours names, keeping the paleontologist point of view. Meginosaurus, Rexcanoceratops, Trigyadrorox, Topraptor, Ptenosaurus, Alcotit, Brasaurus, Brasidais, Alw
