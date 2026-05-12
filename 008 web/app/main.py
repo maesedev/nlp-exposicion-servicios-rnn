@@ -1,4 +1,3 @@
-import io
 import os
 import sys
 import tempfile
@@ -9,8 +8,6 @@ import requests
 import mlflow.artifacts
 import numpy as np
 import tensorflow as tf
-import torch
-from diffusers import StableDiffusionPipeline
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -90,16 +87,6 @@ async def lifespan(app: FastAPI):
     state["model"] = model
     state["run_id"] = run_id
     print(f"RNN model ready  (run: {run_id})")
-
-    # 3. SD 1.5 image pipeline
-    print("Loading Stable Diffusion 1.5 pipeline ...")
-    sd_pipe = StableDiffusionPipeline.from_pretrained(
-        "runwayml/stable-diffusion-v1-5",
-        torch_dtype=torch.float16,
-        use_safetensors=True,
-    )
-    state["flux_pipe"] = sd_pipe
-    print("Stable Diffusion 1.5 pipeline ready")
 
     yield
 
@@ -252,34 +239,31 @@ def predict(req: PredictRequest):
     return PredictResponse(name=req.name, description=description)
 
 
+IMAGE_SERVICE_URL = os.getenv(
+    "IMAGE_SERVICE_URL",
+    "https://unsworn-swinging-coherence.ngrok-free.dev/",
+)
+
+
 class GenerateImageRequest(BaseModel):
-    # Resolución default 512×512 para cumplir con el spec del taller
-    # ("limitar la resolución para disminuir consumo de recursos") y para
-    # acelerar la generación si el host corre en CPU.
-    prompt: str
-    height: int = 512
-    width: int = 512
-    guidance_scale: float = 7.5
-    num_inference_steps: int = 20
-    seed: int = 0
+    name: str
+    description: str
 
 
 @app.post("/generate-image", response_class=Response)
 def generate_image(req: GenerateImageRequest):
-    if "flux_pipe" not in state:
-        raise HTTPException(status_code=503, detail="Image pipeline not loaded yet")
+    if not req.name.strip() or not req.description.strip():
+        raise HTTPException(status_code=422, detail="name and description must not be empty")
 
-    pipe = state["flux_pipe"]
-    image = pipe(
-        req.prompt,
-        height=req.height,
-        width=req.width,
-        guidance_scale=req.guidance_scale,
-        num_inference_steps=req.num_inference_steps,
-        generator=torch.Generator("cpu").manual_seed(req.seed),
-    ).images[0]
+    try:
+        res = requests.post(
+            IMAGE_SERVICE_URL,
+            json={"name": req.name, "description": req.description},
+            timeout=300,
+        )
+        res.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Error reaching image service: {e}")
 
-    buf = io.BytesIO()
-    image.save(buf, format="PNG")
-    buf.seek(0)
-    return Response(content=buf.read(), media_type="image/png")
+    content_type = res.headers.get("Content-Type", "image/png")
+    return Response(content=res.content, media_type=content_type)

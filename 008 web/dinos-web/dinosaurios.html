@@ -902,8 +902,9 @@
 
   /* ── Generar imagen ──────────────────────────────────────────────────────── */
   btnImagen.addEventListener('click', async () => {
-    const prompt = descPanelText.textContent.trim();
-    if (!prompt) return;
+    const name = resultName.textContent.trim();
+    const description = descPanelText.textContent.trim();
+    if (!name || !description) return;
 
     imgPanel.classList.remove('visible');
     imgResult.src = '';
@@ -917,7 +918,7 @@
       const res = await fetch(API_GEN_IMAGE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ name, description })
       });
 
       if (!res.ok) {
