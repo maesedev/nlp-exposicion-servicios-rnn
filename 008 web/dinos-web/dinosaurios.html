@@ -110,19 +110,25 @@
     }
 
     .card-img {
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 6rem;
       position: relative;
       overflow: hidden;
+      border-radius: var(--radius) var(--radius) 0 0;
     }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: var(--radius) var(--radius) 0 0;
+      transition: transform .4s ease;
+    }
+    .card:hover .card-img img { transform: scale(1.06); }
     .card-img::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, transparent 55%, var(--card-bg));
+      background: linear-gradient(to bottom, transparent 50%, var(--card-bg));
+      border-radius: var(--radius) var(--radius) 0 0;
     }
 
     .card-body {
@@ -323,6 +329,39 @@
     .desc-panel-label     { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: .5rem; }
     .desc-panel-text      { font-size: .85rem; line-height: 1.65; color: #b9d4ba; }
 
+    .btn-imagen {
+      width: 100%;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .6rem;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      margin-top: .9rem;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .btn-imagen.visible      { display: flex; }
+    .btn-imagen:hover        { background: var(--border); color: var(--text); border-color: var(--muted); }
+    .btn-imagen:disabled     { opacity: .5; cursor: not-allowed; }
+
+    .img-panel {
+      display: none;
+      margin-top: 1rem;
+    }
+    .img-panel.visible { display: block; }
+    .img-panel img {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+
     .error-msg {
       display: none;
       margin-top: 1rem;
@@ -426,6 +465,15 @@
       <p class="desc-panel-text" id="descPanelText"></p>
     </div>
 
+    <button class="btn-imagen" id="btnImagen">
+      <span id="imgIcon">🎨</span>
+      <span id="imgText">Generar imagen</span>
+    </button>
+
+    <div class="img-panel" id="imgPanel">
+      <img id="imgResult" src="" alt="Dinosaurio generado" />
+    </div>
+
     <div class="error-msg" id="errorMsg"></div>
   </div>
 </div>
@@ -434,75 +482,65 @@
   /* ── Datos de dinosaurios ────────────────────────────────────────────────── */
   const DINOSAURIOS = [
     {
+      name: "Kalavenator",
+      era: "Cretácico · Terópodo",
+      img: "Imagenes generadas/Kalavenator.jpeg",
+      desc: "Del latín 'venator' (cazador), el Kalavenator era un depredador ágil y formidable. Con dientes serrados y sentidos extraordinariamente agudos, ocupaba el rol de depredador supremo en su ecosistema, acechando a sus presas con precisión letal."
+    },
+    {
       name: "Meginosaurus",
       era: "Cretácico Tardío · Terópodo",
-      emoji: "🦖",
-      gradient: "linear-gradient(135deg,#1b3a1b,#2e6b2e)",
+      img: "Imagenes generadas/Meginosaurus.jpeg",
       desc: "Un enorme terópodo que dominó su ecosistema durante el Cretácico tardío. Su nombre evoca 'gran lagarto', y sus extremidades robustas junto con sus poderosas mandíbulas le permitían cazar a los grandes herbívoros de su época."
     },
     {
       name: "Rexcanoceratops",
       era: "Cretácico · Terópodo",
-      emoji: "🦕",
-      gradient: "linear-gradient(135deg,#2a1a0a,#5c3a1a)",
+      img: "Imagenes generadas/Rexcanoceratops.jpeg",
       desc: "Una fusión evolutiva única entre los terópodos y la familia de los ceratópsidos. Poseía cuernos y volantes faciales que lo distinguían de cualquier otro depredador conocido, representando una fascinante convergencia morfológica."
     },
     {
       name: "Trigyadrorox",
       era: "Mesozoico · Terópodo",
-      emoji: "🦎",
-      gradient: "linear-gradient(135deg,#0a2a1a,#1a5a35)",
+      img: "Imagenes generadas/Trigyadrorox.jpeg",
       desc: "Un terópodo bípedo con una adaptación corporal tripodal sin precedentes. Esta estructura adicional pudo haberle conferido ventajas únicas en equilibrio o caza, situándolo en un nicho ecológico completamente propio."
     },
     {
       name: "Topraptor",
       era: "Cretácico · Dromeosáurido",
-      emoji: "🐊",
-      gradient: "linear-gradient(135deg,#1a1a2a,#2a2a5a)",
+      img: "Imagenes generadas/Topraptor.jpeg",
       desc: "Un depredador ágil y altamente especializado, comparable a los dromeosáuridos como el Velociraptor. Inteligencia aguda, velocidad excepcional y estrategias de caza adaptativas lo coronaban como uno de los ápices predadores de su tiempo."
     },
     {
       name: "Ptenosaurus",
       era: "Jurásico · Pterosaurio",
-      emoji: "🦅",
-      gradient: "linear-gradient(135deg,#0a1a2a,#1a3a5a)",
+      img: "Imagenes generadas/Ptenosaurus.jpeg",
       desc: "Un pterosaurio con alas de gran envergadura que surcaba las costas prehistóricas. Se alimentaba de peces y pequeñas presas terrestres desde el aire, dominando los cielos con una agilidad extraordinaria."
     },
     {
       name: "Alcotit",
       era: "Mesozoico · Herbívoro",
-      emoji: "🌙",
-      gradient: "linear-gradient(135deg,#1a0a2a,#3a1a5a)",
+      img: "Imagenes generadas/Alcotit.jpeg",
       desc: "Un dinosaurio herbívoro de hábitos nocturnos con adaptaciones únicas para entornos de baja luminosidad. Sus presuntas capacidades de visión nocturna lo convierten en uno de los ejemplares más intrigantes del registro fósil especulativo."
     },
     {
       name: "Brasaurus",
       era: "Cretácico · Saurópodo",
-      emoji: "🌿",
-      gradient: "linear-gradient(135deg,#0f2a0a,#266b0a)",
+      img: "Imagenes generadas/Brasaurus.jpeg",
       desc: "Un majestuoso saurópodo de cuello largo que prosperó en los exuberantes paisajes prehistóricos de Sudamérica. Su estructura esquelética única le permitía alimentarse eficientemente de la diversa flora de su entorno."
     },
     {
       name: "Brasidais",
       era: "Cretácico · Hadrosáurido",
-      emoji: "🌱",
-      gradient: "linear-gradient(135deg,#1a2a0a,#3a5a1a)",
+      img: "Imagenes generadas/Brasidais.jpeg",
       desc: "Un posible hadrosáurido ornitisco del antiguo Brasil. Conocido por sus elaboradas baterías dentales y potenciales comportamientos sociales, lo que sugiere que vivía en grupos y comunicaba señales complejas entre individuos."
     },
     {
       name: "Alwinisaurus",
       era: "Mesozoico · Especie única",
-      emoji: "🔬",
-      gradient: "linear-gradient(135deg,#2a1a0a,#6b3a1a)",
+      img: "Imagenes generadas/Alwinisaurus.jpeg",
       desc: "Descubierto en una región de características particulares, este dinosaurio presentaba rasgos morfológicos que lo diferenciaban de todas las demás especies conocidas, posiblemente producto de adaptaciones ambientales altamente especializadas."
     },
-    {
-      name: "Kalavenator",
-      era: "Cretácico · Terópodo",
-      emoji: "⚔️",
-      gradient: "linear-gradient(135deg,#2a0a0a,#6b1a1a)",
-      desc: "Del latín 'venator' (cazador), el Kalavenator era un depredador ágil y formidable. Con dientes serrados y sentidos extraordinariamente agudos, ocupaba el rol de depredador supremo en su ecosistema, acechando a sus presas con precisión letal."
-    }
   ];
 
   /* ── Render cards ────────────────────────────────────────────────────────── */
@@ -512,8 +550,8 @@
     const card = document.createElement('article');
     card.className = 'card';
     card.innerHTML = `
-      <div class="card-img" style="background:${dino.gradient}">
-        <span style="position:relative;z-index:1">${dino.emoji}</span>
+      <div class="card-img">
+        <img src="${dino.img}" alt="${dino.name}" loading="lazy" />
       </div>
       <div class="card-body">
         <div class="card-name">${dino.name}</div>
@@ -539,15 +577,21 @@
   const btnIcon     = document.getElementById('btnIcon');
   const btnText     = document.getElementById('btnText');
 
-  const API_BASE    = 'http://3.234.79.156:8000';
-  const API_GENERATE = `${API_BASE}/generate`;
-  const API_PREDICT  = `${API_BASE}/predict`;
+  const API_BASE         = 'http://3.234.79.156:8000';
+  const API_GENERATE     = `${API_BASE}/generate`;
+  const API_PREDICT      = `${API_BASE}/predict`;
+  const API_GEN_IMAGE    = `${API_BASE}/generate-image`;
 
   const btnDescribir  = document.getElementById('btnDescribir');
   const descPanel     = document.getElementById('descPanel');
   const descPanelText = document.getElementById('descPanelText');
   const descIcon      = document.getElementById('descIcon');
   const descText      = document.getElementById('descText');
+  const btnImagen     = document.getElementById('btnImagen');
+  const imgPanel      = document.getElementById('imgPanel');
+  const imgResult     = document.getElementById('imgResult');
+  const imgIcon       = document.getElementById('imgIcon');
+  const imgText       = document.getElementById('imgText');
 
   function openModal() {
     backdrop.classList.add('open');
@@ -564,6 +608,9 @@
     btnDescribir.classList.remove('visible');
     descPanel.classList.remove('visible');
     descPanelText.textContent = '';
+    btnImagen.classList.remove('visible');
+    imgPanel.classList.remove('visible');
+    imgResult.src = '';
     errorMsg.classList.remove('visible');
     errorMsg.textContent = '';
   }
@@ -645,6 +692,7 @@
       const data = await res.json();
       descPanelText.textContent = data.description;
       descPanel.classList.add('visible');
+      btnImagen.classList.add('visible');
 
     } catch (err) {
       errorMsg.textContent = `No se pudo obtener la descripción: ${err.message}`;
@@ -653,6 +701,45 @@
       btnDescribir.disabled = false;
       descIcon.textContent = '🔍';
       descText.textContent = 'Obtener descripción de dinosaurio';
+    }
+  });
+
+  /* ── Generar imagen ──────────────────────────────────────────────────────── */
+  btnImagen.addEventListener('click', async () => {
+    const prompt = descPanelText.textContent.trim();
+    if (!prompt) return;
+
+    imgPanel.classList.remove('visible');
+    imgResult.src = '';
+    errorMsg.classList.remove('visible');
+
+    btnImagen.disabled = true;
+    imgIcon.innerHTML = '<span class="spinner"></span>';
+    imgText.textContent = 'Generando imagen…';
+
+    try {
+      const res = await fetch(API_GEN_IMAGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Error ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      imgResult.src = URL.createObjectURL(blob);
+      imgPanel.classList.add('visible');
+
+    } catch (err) {
+      errorMsg.textContent = `No se pudo generar la imagen: ${err.message}`;
+      errorMsg.classList.add('visible');
+    } finally {
+      btnImagen.disabled = false;
+      imgIcon.textContent = '🎨';
+      imgText.textContent = 'Generar imagen';
     }
   });
 

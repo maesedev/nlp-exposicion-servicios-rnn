@@ -16,4 +16,6 @@ sudo yum install git docker -y
 git clone https://github.com/maesedev/nlp-exposicion-servicios-rnn.git /home/ec2-user/inference-endpoint
 cd /home/ec2-user/inference-endpoint/008 web/app
 docker build -t inference-endpoint:latest .
-docker run -d -p 5000:5000 inference-endpoint:latest
+docker run -d -p 8000:8000 \
+    -v /home/ec2-user/ngrok_link.config:/home/ec2-user/ngrok_link.config:ro \
+    inference-endpoint:latest
