@@ -52,8 +52,8 @@ MODEL Phi4 14B (https://ollama.com/library/phi4)
 Prompt: Create a brief description of all the following made up dinosours names, keeping the paleontologist point of view. Meginosaurus, Rexcanoceratops, Trigyadrorox, Topraptor, Ptenosaurus, Alcotit, Brasaurus, Brasidais, Alw
 ... inisaurus, Kalavenator.
 
-
-**Meginosaurus**: From a paleontologist's perspective, the Meginosaurus might be envisioned as a massive theropod dinosaur that roamed during the late Cretaceous period. Its name suggests "great lizard," indicating 
+``` Markdown
+**Meginosaurus**: From a paleontologist's perspective, the Meginosaurus might be envisioned as a massive theropod dinosaur that roamed during the late Cretaceous period. Its name suggests 'great lizard,' indicating 
 it could have been one of the dominant predators in its ecosystem. With robust limbs and powerful jaws, this hypothetical species may have preyed upon large herbivorous dinosaurs.
 
 **Rexcanoceratops**: This name evokes a combination of the iconic Tyrannosaurus rex and the ceratopsian family. The Rexcanoceratops could be imagined as an unusual theropod with distinctive facial horns or frills, 
@@ -85,3 +85,4 @@ This theropod might have possessed distinctive features such as serrated teeth o
 
 These descriptions are speculative and imaginative interpretations of the given names, reflecting how paleontologists might approach naming and conceptualizing new dinosaur species based on linguistic clues and known 
 evolutionary patterns.
+```

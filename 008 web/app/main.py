@@ -10,6 +10,7 @@ import tensorflow as tf
 import torch
 from diffusers import StableDiffusionXLPipeline
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
 
@@ -110,6 +111,13 @@ app = FastAPI(
     title="Dino Name Generator",
     description="Autoregressive LSTM that completes dinosaur names.",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
