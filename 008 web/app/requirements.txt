@@ -4,3 +4,8 @@ tensorflow
 mlflow
 numpy
 pydantic
+torch
+diffusers
+transformers
+accelerate
+sentencepiece
