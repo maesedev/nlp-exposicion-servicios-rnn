@@ -54,6 +54,7 @@ docker run -d \
   --add-host=host.docker.internal:host-gateway \
   -p "$API_PORT:8000" \
   -e MLFLOW_TRACKING_URI="http://host.docker.internal:$MLFLOW_PORT" \
+  -v /home/ec2-user/ngrok_link.config:/home/ec2-user/ngrok_link.config:ro \
   "$IMAGE_NAME"
 
 echo ""
