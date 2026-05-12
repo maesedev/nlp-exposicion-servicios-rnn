@@ -8,7 +8,7 @@ import mlflow.artifacts
 import numpy as np
 import tensorflow as tf
 import torch
-from diffusers import FluxPipeline
+from diffusers import StableDiffusionXLPipeline
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -88,15 +88,17 @@ async def lifespan(app: FastAPI):
     state["run_id"] = run_id
     print(f"RNN model ready  (run: {run_id})")
 
-    # 3. FLUX image pipeline
-    print("Loading FLUX.1-dev pipeline …")
-    flux_pipe = FluxPipeline.from_pretrained(
-        "black-forest-labs/FLUX.1-schnell",
-        torch_dtype=torch.bfloat16,
+    # 3. SDXL image pipeline
+    print("Loading SDXL pipeline ...")
+    sdxl_pipe = StableDiffusionXLPipeline.from_pretrained(
+        "stabilityai/stable-diffusion-xl-base-1.0",
+        torch_dtype=torch.float16,
+        use_safetensors=True,
+        variant="fp16",
     )
-    flux_pipe.enable_model_cpu_offload()
-    state["flux_pipe"] = flux_pipe
-    print("FLUX pipeline ready")
+    sdxl_pipe.enable_model_cpu_offload()
+    state["flux_pipe"] = sdxl_pipe
+    print("SDXL pipeline ready")
 
     yield
 
@@ -197,7 +199,8 @@ class GenerateImageRequest(BaseModel):
     prompt: str
     height: int = 1024
     width: int = 1024
-    num_inference_steps: int = 4
+    guidance_scale: float = 7.5
+    num_inference_steps: int = 20
     seed: int = 0
 
 
@@ -211,9 +214,8 @@ def generate_image(req: GenerateImageRequest):
         req.prompt,
         height=req.height,
         width=req.width,
-        guidance_scale=0.0,
+        guidance_scale=req.guidance_scale,
         num_inference_steps=req.num_inference_steps,
-        max_sequence_length=256,
         generator=torch.Generator("cpu").manual_seed(req.seed),
     ).images[0]
 
