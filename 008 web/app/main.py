@@ -91,7 +91,7 @@ async def lifespan(app: FastAPI):
     # 3. FLUX image pipeline
     print("Loading FLUX.1-dev pipeline …")
     flux_pipe = FluxPipeline.from_pretrained(
-        "black-forest-labs/FLUX.1-dev",
+        "black-forest-labs/FLUX.1-schnell",
         torch_dtype=torch.bfloat16,
     )
     flux_pipe.enable_model_cpu_offload()
@@ -197,8 +197,7 @@ class GenerateImageRequest(BaseModel):
     prompt: str
     height: int = 1024
     width: int = 1024
-    guidance_scale: float = 3.5
-    num_inference_steps: int = 50
+    num_inference_steps: int = 4
     seed: int = 0
 
 
@@ -212,9 +211,9 @@ def generate_image(req: GenerateImageRequest):
         req.prompt,
         height=req.height,
         width=req.width,
-        guidance_scale=req.guidance_scale,
+        guidance_scale=0.0,
         num_inference_steps=req.num_inference_steps,
-        max_sequence_length=512,
+        max_sequence_length=256,
         generator=torch.Generator("cpu").manual_seed(req.seed),
     ).images[0]
 
