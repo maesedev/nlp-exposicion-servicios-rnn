@@ -96,7 +96,6 @@ async def lifespan(app: FastAPI):
         use_safetensors=True,
         variant="fp16",
     )
-    sdxl_pipe.enable_model_cpu_offload()
     state["flux_pipe"] = sdxl_pipe
     print("SDXL pipeline ready")
 
