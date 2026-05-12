@@ -179,5 +179,60 @@ def train() -> tuple[
     return model, history.history, vocab, test_metrics
 
 
+# ── Generation ────────────────────────────────────────────────────────────────
+
+def _sample_top_k_top_p(probs: np.ndarray, top_k: int, top_p: float) -> int:
+    """Filter logits with top-k and/or top-p (nucleus), then sample."""
+    if top_k > 0:
+        k = min(top_k, len(probs))
+        top_k_indices = np.argpartition(probs, -k)[-k:]
+        mask = np.zeros_like(probs)
+        mask[top_k_indices] = probs[top_k_indices]
+        probs = mask / mask.sum()
+
+    if top_p < 1.0:
+        sorted_idx = np.argsort(probs)[::-1]
+        cumsum = np.cumsum(probs[sorted_idx])
+        cutoff = int(np.searchsorted(cumsum, top_p, side="right")) + 1
+        keep = sorted_idx[:cutoff]
+        mask = np.zeros_like(probs)
+        mask[keep] = probs[keep]
+        probs = mask / mask.sum()
+
+    return int(np.random.choice(len(probs), p=probs))
+
+
+def generate_name(
+    model: tf.keras.Model,
+    vocab: dict[str, int],
+    inv_vocab: dict[int, str],
+    top_k: int = 0,
+    top_p: float = 1.0,
+    max_len: int = 20,
+    seed: int | None = None,
+) -> str:
+    """Generate a dinosaur name token-by-token using top-k/top-p sampling."""
+    if seed is not None:
+        np.random.seed(seed)
+
+    sow_idx = vocab["<SOW>"]
+    eow_idx = vocab["<EOW>"]
+
+    tokens = [sow_idx]
+    for _ in range(max_len):
+        x = np.array([tokens])
+        preds = model.predict(x, verbose=0)
+        probs = preds[0, -1, :].astype(np.float64)
+        probs = np.clip(probs, 0, None)
+        probs /= probs.sum()
+        next_idx = _sample_top_k_top_p(probs, top_k=top_k, top_p=top_p)
+        if next_idx == eow_idx:
+            break
+        tokens.append(next_idx)
+
+    parts = [inv_vocab[idx] for idx in tokens[1:] if idx in inv_vocab]
+    return "".join(t for t in parts if t not in ("<SOW>", "<EOW>", "<PAD>", "<UNK>"))
+
+
 if __name__ == "__main__":
     train()

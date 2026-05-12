@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST 'http://ec2-3-234-79-156.compute-1.amazonaws.com:8000/generate' -H 'Content-Type: application/json' -d '{\"prefix\": \"kal\", \"temperature\": 1.5}')"
+    ]
+  }
+}

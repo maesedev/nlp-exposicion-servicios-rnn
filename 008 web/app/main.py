@@ -1,3 +1,4 @@
+import io
 import os
 import sys
 import tempfile
@@ -6,7 +7,10 @@ from contextlib import asynccontextmanager
 import mlflow.artifacts
 import numpy as np
 import tensorflow as tf
+import torch
+from diffusers import FluxPipeline
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
@@ -77,12 +81,22 @@ async def lifespan(app: FastAPI):
     state["merges"] = load_merges(MERGES_PATH)
     state["ix_to_token"] = {v: k for k, v in state["vocab"].items()}
 
-    # 2. Model (must finish before endpoints accept traffic)
+    # 2. RNN model (must finish before endpoints accept traffic)
     print(f"Connecting to MLflow at {MLFLOW_TRACKING_URI} …")
     model, run_id = _load_model_from_mlflow()
     state["model"] = model
     state["run_id"] = run_id
-    print(f"Model ready  (run: {run_id})")
+    print(f"RNN model ready  (run: {run_id})")
+
+    # 3. FLUX image pipeline
+    print("Loading FLUX.1-dev pipeline …")
+    flux_pipe = FluxPipeline.from_pretrained(
+        "black-forest-labs/FLUX.1-dev",
+        torch_dtype=torch.bfloat16,
+    )
+    flux_pipe.enable_model_cpu_offload()
+    state["flux_pipe"] = flux_pipe
+    print("FLUX pipeline ready")
 
     yield
 
@@ -177,3 +191,34 @@ def generate(req: GenerateRequest):
 
     name = _generate(req.prefix, req.temperature)
     return GenerateResponse(name=name, prefix=req.prefix, run_id=state["run_id"])
+
+
+class GenerateImageRequest(BaseModel):
+    prompt: str
+    height: int = 1024
+    width: int = 1024
+    guidance_scale: float = 3.5
+    num_inference_steps: int = 50
+    seed: int = 0
+
+
+@app.post("/generate-image", response_class=Response)
+def generate_image(req: GenerateImageRequest):
+    if "flux_pipe" not in state:
+        raise HTTPException(status_code=503, detail="Image pipeline not loaded yet")
+
+    pipe = state["flux_pipe"]
+    image = pipe(
+        req.prompt,
+        height=req.height,
+        width=req.width,
+        guidance_scale=req.guidance_scale,
+        num_inference_steps=req.num_inference_steps,
+        max_sequence_length=512,
+        generator=torch.Generator("cpu").manual_seed(req.seed),
+    ).images[0]
+
+    buf = io.BytesIO()
+    image.save(buf, format="PNG")
+    buf.seek(0)
+    return Response(content=buf.read(), media_type="image/png")
