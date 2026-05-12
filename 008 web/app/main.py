@@ -204,7 +204,7 @@ def generate(req: GenerateRequest):
     return GenerateResponse(name=name, prefix=req.prefix, run_id=state["run_id"])
 
 
-NGROK_CONFIG_PATH = "/home/ecs-user/ngrok_link.config"
+NGROK_CONFIG_PATH = "/home/ec2-user/ngrok_link.config"
 PREDICT_PROMPT = (
     "Create a brief description of the following made up dinosaur name, "
     "keeping the paleontologist point of view. Answer only with the description, "
